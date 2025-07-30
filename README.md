@@ -9,34 +9,63 @@
   <style>
     body {
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      background: linear-gradient(135deg, #eef2f3, #d9e7f7);
       margin: 0;
       padding: 20px;
       color: #333;
     }
+
+    /* الحاوية الرئيسية */
     .container {
       background: white;
       padding: 25px;
       max-width: 850px;
       margin: auto;
       border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
       text-align: center;
+      box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+      animation: fadeIn 1s ease;
     }
+
+    /* عنوان رئيسي مع توهج */
     h2 {
       color: #2c3e50;
       margin-bottom: 10px;
+      font-size: 28px;
     }
+    h2 i {
+      color: #0d6efd;
+      margin-left: 8px;
+      filter: drop-shadow(0 0 8px #0d6efd);
+      animation: pulse 2s infinite;
+    }
+
+    /* منطقة الرفع */
     .upload-area {
-      border: 2px dashed #aaa;
+      border: 2px dashed #0d6efd;
       border-radius: 12px;
       padding: 30px;
       margin: 20px 0;
       background: #fdfdfd;
       cursor: pointer;
       transition: 0.3s;
+      filter: drop-shadow(0 0 6px rgba(13, 110, 253, 0.4));
     }
-    .upload-area:hover { border-color: #007bff; background: #f0f8ff; }
+    .upload-area:hover {
+      background: #e8f2ff;
+      transform: scale(1.02);
+      filter: drop-shadow(0 0 12px rgba(13, 110, 253, 0.7));
+    }
+
+    /* أيقونة رفع */
+    .upload-area i {
+      color: #0d6efd;
+      font-size: 28px;
+      margin-bottom: 8px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* منطقة العرض */
     .preview-container {
       display: flex;
       flex-wrap: wrap;
@@ -47,12 +76,17 @@
     .preview-container div {
       flex: 1;
       min-width: 250px;
+      animation: fadeUp 0.8s ease;
     }
     img {
       max-width: 100%;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
     }
+    img:hover { transform: scale(1.03); }
+
+    /* الأزرار */
     select, button {
       padding: 12px 20px;
       margin: 10px;
@@ -60,25 +94,41 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
-      transition: 0.3s;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     button {
-      background: #007bff;
+      background: #0d6efd;
       color: white;
+      box-shadow: 0 0 8px rgba(13, 110, 253, 0.6);
     }
-    button:hover { background: #0056b3; }
-    select { border: 1px solid #ccc; }
+    button:hover {
+      background: #0a58ca;
+      transform: scale(1.05);
+      box-shadow: 0 0 14px rgba(10, 88, 202, 0.9);
+    }
+
+    /* رابط التحميل */
     a#download {
       display: inline-block;
       margin-top: 15px;
-      background: #28a745;
+      background: #198754;
       color: white;
       padding: 10px 18px;
       border-radius: 8px;
       text-decoration: none;
+      box-shadow: 0 0 8px rgba(25, 135, 84, 0.7);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    a#download:hover { background: #1e7e34; }
+    a#download:hover {
+      background: #146c43;
+      transform: scale(1.05);
+      box-shadow: 0 0 14px rgba(20, 108, 67, 0.9);
+    }
+
+    /* نص التحميل */
     .loading { color: #007bff; font-weight: bold; }
+
+    /* نافذة القص */
     #crop-area {
       display: none;
       position: fixed;
@@ -95,32 +145,44 @@
       border-radius: 12px;
       max-width: 95%;
       text-align: center;
+      animation: zoomIn 0.4s ease;
     }
-    #crop-box button {
-      margin: 10px 5px;
-    }
+    #crop-box button { margin: 10px 5px; }
+
+    /* الحركات */
+    @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+    @keyframes fadeUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+    @keyframes zoomIn { from {transform: scale(0.7); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+    @keyframes pulse { 0%,100% {transform: scale(1);} 50% {transform: scale(1.1);} }
+    @keyframes float { 0%,100% {transform: translateY(0);} 50% {transform: translateY(-6px);} }
   </style>
 </head>
 <body>
   <div class="container">
     <h2><i class="fa-solid fa-scissors"></i> إزالة الخلفية وتحويل الصور</h2>
     <p>🚀 أداة سهلة لإزالة الخلفية، تحويل الصور، وقصها بشكل احترافي</p>
+
+    <!-- منطقة الرفع -->
     <div class="upload-area" id="upload-area">
-      <i class="fa-solid fa-cloud-arrow-up fa-2x"></i><br>
+      <i class="fa-solid fa-cloud-arrow-up"></i><br>
       <span>اسحب الصورة هنا أو انقر لاختيارها</span>
       <input type="file" id="file-input" accept="image/*" hidden>
     </div>
+
     <label for="format">📂 اختر صيغة التحميل:</label>
     <select id="format">
       <option value="png">PNG</option>
       <option value="jpeg">JPG</option>
       <option value="webp">WebP</option>
     </select><br>
+
+    <!-- الأزرار -->
     <button onclick="convertImage()"><i class="fa-solid fa-repeat"></i> تحويل</button>
     <button onclick="removeBackground()"><i class="fa-solid fa-eraser"></i> إزالة الخلفية</button>
     <button onclick="openCropper()"><i class="fa-solid fa-crop"></i> قص الصورة</button>
     <p id="status" class="loading"></p>
 
+    <!-- المعاينة -->
     <div class="preview-container">
       <div>
         <h3>📥 قبل</h3>
@@ -161,12 +223,11 @@
 
     uploadArea.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
     uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = "#007bff"; });
-    uploadArea.addEventListener('dragleave', () => uploadArea.style.borderColor = "#aaa");
+    uploadArea.addEventListener('dragleave', () => uploadArea.style.borderColor = "#0d6efd");
     uploadArea.addEventListener('drop', (e) => {
       e.preventDefault();
-      uploadArea.style.borderColor = "#aaa";
+      uploadArea.style.borderColor = "#0d6efd";
       if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
 
@@ -229,18 +290,15 @@
     async function removeBackground() {
       if (!uploadedFile) return alert('⚠️ الرجاء رفع صورة أولاً');
       statusText.textContent = '⏳ جارٍ معالجة الصورة...';
-
       const formData = new FormData();
       formData.append('image_file', uploadedFile);
       formData.append('size', 'auto');
-
       try {
         const response = await fetch('https://api.remove.bg/v1.0/removebg', {
           method: 'POST',
           headers: { 'X-Api-Key': 'VrVtmhP13pw8w6WdRw99yNmk' },
           body: formData,
         });
-
         if (!response.ok) throw new Error('فشل الاتصال بـ API');
         const blob = await response.blob();
         const imageUrl = URL.createObjectURL(blob);
